@@ -1,4 +1,5 @@
 const express = require('express')
+const { redirect } = require('express/lib/response')
 const Router = express.Router()
 const database = require('./../database/database')
 
@@ -62,12 +63,29 @@ rotas.forEach((i)=>{
     const username = i.username.replace(/\s/g, '').toLowerCase()
 
 
-
     Router.post(`/edit${username}`,(req,res)=>{
-        console.log(req.body.edittittle)
-        console.log(req.body.editcontent)
-        console.log(req.body.editcompletedtask)
-        console.log(req.body.idtask)
+       
+        //tittle 
+        database.query(`
+        update tasks${username} 
+        set tittletask = $1
+        where id = $2       
+        `, [req.body.edittittle,req.body.idtask])
+
+        //content
+        database.query(`
+        update tasks${username} 
+        set contenttask = $1
+        where id = $2       
+        `, [req.body.editcontent,req.body.idtask])
+
+        //completed
+        database.query(`
+        update tasks${username} 
+        set completed = $1
+        where id = $2       
+        `, [req.body.editcompletedtask,req.body.idtask])
+        res.redirect(`http://localhost:3000/plat/${req.body.iduser}`)
     })
 })
 })
