@@ -12,9 +12,10 @@ Router.get('/datacadastro', (req, res) => {
     })
 })
 
-var teste = database.query('select * from login')
 
-teste.then((data) => {
+var datalogin = database.query('select * from login')
+
+datalogin.then((data) => {
 
     var rotasdeuser = data.rows
 
@@ -28,20 +29,21 @@ teste.then((data) => {
                 res.json(data.rows)
             })
         })
-
     })
 })
 
 
-
-
-//ROTAS DE REQUISIÇÕES 
+//REQUISIÇÕES 
 
 Router.post('/cadastro', (req, res) => {
     //AQUI ADICIONA AO BANCO DE DADOS   
     database.query('insert into login (username,password,email,sexo) values ($1,$2,$3,$4)', [req.body.username, req.body.password, req.body.email, req.body.sex])
 
-    database.query(`create table tasks${req.body.username} ( 
+
+    //cria base de dados para plataforma
+    var indentname = req.body.username.replace(/\s/g, '').toLowerCase()
+
+    database.query(`create table tasks${indentname} ( 
         id serial,
         tittletask varchar,
         contenttask varchar,
@@ -50,6 +52,26 @@ Router.post('/cadastro', (req, res) => {
 
     res.redirect('http://localhost:3000/finish')
 })
+
+// Atualização de tasks 
+datalogin.then((data)=>{
+
+rotas = data.rows
+
+rotas.forEach((i)=>{
+    const username = i.username.replace(/\s/g, '').toLowerCase()
+
+
+
+    Router.post(`/edit${username}`,(req,res)=>{
+        console.log(req.body.edittittle)
+        console.log(req.body.editcontent)
+        console.log(req.body.editcompletedtask)
+        console.log(req.body.idtask)
+    })
+})
+})
+
 
 
 
