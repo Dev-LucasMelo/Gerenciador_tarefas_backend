@@ -1,5 +1,4 @@
 const express = require('express')
-const { redirect } = require('express/lib/response')
 const Router = express.Router()
 const database = require('./../database/database')
 
@@ -54,10 +53,33 @@ Router.post('/cadastro', (req, res) => {
     res.redirect('http://localhost:3000/finish')
 })
 
+//Criação de tasks 
+datalogin.then((data)=>{
+
+var rotascreate = data.rows
+
+rotascreate.forEach((i) =>{
+    const username = i.username.replace(/\s/g, '').toLowerCase()
+
+    Router.post(`/createtask${username}`,(req,res)=>{
+
+        database.query(`
+            insert into tasks${username} (tittletask,contenttask,completed)
+            values ($1,$2,$3)        
+        `,[req.body.createtittle,req.body.createcontent,req.body.createcompletedtask])
+
+        res.redirect(`http://localhost:3000/plat/${req.body.rotaderetorno}`)
+    })
+})
+
+})
+
+
+
 // Atualização de tasks 
 datalogin.then((data)=>{
 
-rotas = data.rows
+var rotas = data.rows
 
 rotas.forEach((i)=>{
     const username = i.username.replace(/\s/g, '').toLowerCase()
@@ -91,10 +113,4 @@ rotas.forEach((i)=>{
 })
 
 
-
-
 module.exports = Router
-
-
-
-
