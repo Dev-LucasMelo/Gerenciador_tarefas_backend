@@ -74,8 +74,6 @@ rotascreate.forEach((i) =>{
 
 })
 
-
-
 // Atualização de tasks 
 datalogin.then((data)=>{
 
@@ -107,10 +105,30 @@ rotas.forEach((i)=>{
         set completed = $1
         where id = $2       
         `, [req.body.editcompletedtask,req.body.idtask])
-        res.redirect(`http://localhost:3000/plat/${req.body.iduser}`)
+        res.redirect(`http://localhost:3000/plat/${i.id}`)
     })
 })
 })
+//Delete tasks
+datalogin.then(data =>{
+    var rotas = data.rows 
 
+    rotas.forEach((i)=>{
+        const username = i.username.replace(/\s/g, '').toLowerCase()
+
+        Router.post(`/delete${username}`,(req,res)=>{
+            console.log()
+
+             
+            database.query(`
+                delete from tasks${username} 
+                where id = $1
+            `,[req.body.deletetaskid])
+          
+
+            res.redirect(`http://localhost:3000/plat/${i.id}`)
+        })
+    })
+})
 
 module.exports = Router
