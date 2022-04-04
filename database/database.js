@@ -1,6 +1,6 @@
 const pg = require('pg') //postgres database 
 
-const database = new pg.Client ({
+const database =  new pg.Client ({
     user: 'postgres',
     password: '12345',
     host: 'localhost',

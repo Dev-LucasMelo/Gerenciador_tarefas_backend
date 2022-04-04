@@ -4,7 +4,6 @@ const database = require('./../database/database')
 
 
 //ROTAS DE DADOS
-
 Router.get('/datacadastro', (req, res) => {
     var cadastro = database.query('select * from login')
     cadastro.then((data) => {
@@ -12,33 +11,19 @@ Router.get('/datacadastro', (req, res) => {
     })
 })
 
+//rotas de usuarios 
+Router.get(`/tasksuser/:username`, (req, res) => {
 
-var datalogin = database.query('select * from login')
-
-datalogin.then((data) => {
-
-    var rotasdeuser = data.rows
-
-    rotasdeuser.forEach((item) => {
-
-        const username = item.username.replace(/\s/g, '').toLowerCase()
-
-        Router.get(`/tasks${username}`, (req, res) => {
-            var tasksuser = database.query(`select * from tasks${username}`)
-            tasksuser.then((data) => {
-                res.json(data.rows)
-            })
-        })
+    var tasksuser = database.query(`select * from tasks${req.params.username}`)
+    tasksuser.then((data) => {
+        res.json(data.rows)
     })
 })
 
-
-//REQUISIÇÕES 
-
+//cadastro
 Router.post('/cadastro', (req, res) => {
     //AQUI ADICIONA AO BANCO DE DADOS   
     database.query('insert into login (username,password,email,sexo) values ($1,$2,$3,$4)', [req.body.username, req.body.password, req.body.email, req.body.sex])
-
 
     //cria base de dados para plataforma
     var indentname = req.body.username.replace(/\s/g, '').toLowerCase()
@@ -50,85 +35,62 @@ Router.post('/cadastro', (req, res) => {
         completed boolean
     ) `)
 
+
     res.redirect('http://localhost:3000/finish')
 })
 
 //Criação de tasks 
-datalogin.then((data)=>{
+Router.post(`/createtask`, (req, res) => {
 
-var rotascreate = data.rows
+    const username = req.body.username.replace(/\s/g, '').toLowerCase()
 
-rotascreate.forEach((i) =>{
-    const username = i.username.replace(/\s/g, '').toLowerCase()
-
-    Router.post(`/createtask${username}`,(req,res)=>{
-
-        database.query(`
+    database.query(`
             insert into tasks${username} (tittletask,contenttask,completed)
             values ($1,$2,$3)        
-        `,[req.body.createtittle,req.body.createcontent,req.body.createcompletedtask])
+        `, [req.body.createtittle, req.body.createcontent, req.body.createcompletedtask])
 
-        res.redirect(`http://localhost:3000/plat/${req.body.rotaderetorno}`)
-    })
-})
-
+    res.redirect(`http://localhost:3000/plat/${req.body.rotaderetorno}`)
 })
 
 // Atualização de tasks 
-datalogin.then((data)=>{
+Router.post(`/edittask/:username`, (req, res) => {
 
-var rotas = data.rows
-
-rotas.forEach((i)=>{
-    const username = i.username.replace(/\s/g, '').toLowerCase()
-
-
-    Router.post(`/edit${username}`,(req,res)=>{
-       
-        //tittle 
-        database.query(`
-        update tasks${username} 
+    //tittle 
+    database.query(`
+        update tasks${req.params.username} 
         set tittletask = $1
         where id = $2       
-        `, [req.body.edittittle,req.body.idtask])
+        `, [req.body.edittittle, req.body.idtask])
 
-        //content
-        database.query(`
-        update tasks${username} 
+    //content
+    database.query(`
+        update tasks${req.params.username} 
         set contenttask = $1
         where id = $2       
-        `, [req.body.editcontent,req.body.idtask])
+        `, [req.body.editcontent, req.body.idtask])
 
-        //completed
-        database.query(`
-        update tasks${username} 
+    //completed
+    database.query(`
+        update tasks${req.params.username} 
         set completed = $1
         where id = $2       
-        `, [req.body.editcompletedtask,req.body.idtask])
-        res.redirect(`http://localhost:3000/plat/${i.id}`)
-    })
+        `, [req.body.editcompletedtask, req.body.idtask])
+
+    res.redirect(`http://localhost:3000/plat/${req.body.rotaretorno}`)
 })
-})
+
 //Delete tasks
-datalogin.then(data =>{
-    var rotas = data.rows 
 
-    rotas.forEach((i)=>{
-        const username = i.username.replace(/\s/g, '').toLowerCase()
+Router.post(`/delete/:username`, (req, res) => {
 
-        Router.post(`/delete${username}`,(req,res)=>{
-            console.log()
-
-             
-            database.query(`
-                delete from tasks${username} 
+    database.query(`
+                delete from tasks${req.params.username} 
                 where id = $1
-            `,[req.body.deletetaskid])
-          
+            `, [req.body.deletetaskid])
 
-            res.redirect(`http://localhost:3000/plat/${i.id}`)
-        })
-    })
+
+    res.redirect(`http://localhost:3000/plat/${req.body.iduser}`)
 })
+
 
 module.exports = Router
