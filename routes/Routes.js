@@ -80,7 +80,6 @@ Router.post(`/edittask/:username`, (req, res) => {
 })
 
 //Delete tasks
-
 Router.post(`/delete/:username`, (req, res) => {
 
     database.query(`
@@ -91,6 +90,5 @@ Router.post(`/delete/:username`, (req, res) => {
 
     res.redirect(`http://localhost:3000/plat/${req.body.iduser}`)
 })
-
 
 module.exports = Router
